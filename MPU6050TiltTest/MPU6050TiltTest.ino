@@ -3,6 +3,10 @@
 #include<Wire.h>
 const int MPU_addr=0x68;  // I2C address of the MPU-6050
 int16_t AcX,AcY,AcZ,Tmp,GyX,GyY,GyZ;
+//TEST
+int steps = 0;
+int16_t lastAcZ = 0;
+
 void setup(){
   Wire.begin();
    //The four LED pins that I used 
@@ -22,6 +26,7 @@ void loop(){
   Wire.write(0x3B);  // starting with register 0x3B (ACCEL_XOUT_H)
   Wire.endTransmission(false);
   Wire.requestFrom(MPU_addr,14,true);  // request a total of 14 registers, 
+  
    //Values for the acceleration in each direction (We use these three values for this demonstration)
   AcX=Wire.read()<<8|Wire.read();  // 0x3B (ACCEL_XOUT_H) & 0x3C (ACCEL_XOUT_L)    
   AcY=Wire.read()<<8|Wire.read();  // 0x3D (ACCEL_YOUT_H) & 0x3E (ACCEL_YOUT_L)
@@ -32,6 +37,13 @@ void loop(){
   GyX=Wire.read()<<8|Wire.read();  // 0x43 (GYRO_XOUT_H) & 0x44 (GYRO_XOUT_L)
   GyY=Wire.read()<<8|Wire.read();  // 0x45 (GYRO_YOUT_H) & 0x46 (GYRO_YOUT_L)
   GyZ=Wire.read()<<8|Wire.read();  // 0x47 (GYRO_ZOUT_H) & 0x48 (GYRO_ZOUT_L)
+
+  if(lastAcZ - AcZ > 10000){
+    steps++;
+  }
+  lastAcZ = AcZ;
+
+  
   //turn on LED's when tilted a certain direction
   if(AcX < 1000 & AcY < -8000){
   digitalWrite(10, HIGH);
@@ -70,7 +82,8 @@ void loop(){
   //Print values of accelerometer to serial 
   //Serial.print("\n AcX = "); Serial.print(AcX);
   //Serial.print(" | AcY = "); Serial.print(AcY);
-  Serial.print("\n AcZ = "); Serial.print(AcZ);
+  //Serial.print("\n AcZ = "); Serial.print(AcZ);
+  Serial.print("\n Steps = "); Serial.print(steps);
  
 
 
